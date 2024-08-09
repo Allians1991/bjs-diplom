@@ -96,7 +96,6 @@ favorites.addUserCallback = data => {
 
 // Удаление пользователя из списка избранных
 favorites.removeUserCallback = data => {
-    console.log(data)
     const id = data;
     ApiConnector.removeUserFromFavorites(id, response => {
         if (response.success === true) {
