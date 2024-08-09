@@ -18,24 +18,28 @@ ApiConnector.current(response => {
 
 // Получение текущих курсов валюты
 const rates = new RatesBoard();
-ApiConnector.getStocks(response => {
-    if(response.success === true) {
-        rates.clearTable();
-        rates.fillTable(response.data);
-    }
-})
+
+function getCurrentRates() {
+    ApiConnector.getStocks(response => {
+        if(response.success === true) {
+            rates.clearTable();
+            rates.fillTable(response.data);
+        }
+    })
+}
+getCurrentRates();
+setInterval(getCurrentRates, 2000);
+
+
 
 // Операции с деньгами
 const moneyOperations = new MoneyManager();
 moneyOperations.addMoneyCallback = data => {
     // Пополнение баланса
-    const currency = data.currency;
-    const amount = data.amount;
-    ApiConnector.addMoney({ currency, amount },  response => {
+    ApiConnector.addMoney(data,  response => {
         if (response.success === true) {
             ProfileWidget.showProfile(response.data);
-            response.done = `Баланс успешно пополнен на ${amount} ${currency}`;
-            moneyOperations.setMessage(response.success, response.done);
+            moneyOperations.setMessage(response.success, `Баланс успешно пополнен на ${data.amount} ${data.currency}`);
            
         } else {
             moneyOperations.setMessage(response.success, response.error);
@@ -44,14 +48,10 @@ moneyOperations.addMoneyCallback = data => {
 }
 // Конвертирование валюты
 moneyOperations.conversionMoneyCallback = data => {
-    const fromCurrency = data.fromCurrency;
-    const targetCurrency = data.targetCurrency;
-    const fromAmount = data.fromAmount;
-    ApiConnector.convertMoney({ fromCurrency, targetCurrency, fromAmount }, response => {
+    ApiConnector.convertMoney(data, response => {
         if (response.success === true) {
             ProfileWidget.showProfile(response.data);
-            response.done = `Успешное конвертирование ${fromCurrency} в ${targetCurrency}`;
-            moneyOperations.setMessage(response.success, response.done);
+            moneyOperations.setMessage(response.success, `Успешное конвертирование ${data.fromCurrency} в ${data.targetCurrency}`);
         } else {
             moneyOperations.setMessage(response.success, response.error);
         }
@@ -59,14 +59,10 @@ moneyOperations.conversionMoneyCallback = data => {
 }
 // Перевод валюты
 moneyOperations.sendMoneyCallback = data => {
-    const to = data.to;
-    const currency = data.currency;
-    const amount = data.amount;
-    ApiConnector.transferMoney({ to, currency, amount }, response => {
+    ApiConnector.transferMoney(data, response => {
         if (response.success === true) {
             ProfileWidget.showProfile(response.data);
-            response.done = `Успешное перевод ${amount} ${currency}`;
-            moneyOperations.setMessage(response.success, response.done);
+            moneyOperations.setMessage(response.success, `Успешное перевод ${data.amount} ${data.currency}`);
         } else {
             moneyOperations.setMessage(response.success, response.error);
         }
@@ -86,15 +82,12 @@ ApiConnector.getFavorites(response => {
 })
 // Добавление пользователя в список избранных
 favorites.addUserCallback = data => {
-    const id = data.id;
-    const name = data.name;
-    ApiConnector.addUserToFavorites({id, name}, response => {
+    ApiConnector.addUserToFavorites(data, response => {
         if (response.success === true) {
             favorites.clearTable();
             favorites.fillTable(response.data);
             moneyOperations.updateUsersList(response.data);
-            response.done = `Пользователь ${name} добавлен в избранное`;
-            favorites.setMessage(response.success, response.done);
+            favorites.setMessage(response.success, `Пользователь ${data.name} добавлен в избранное`);
         } else {
             favorites.setMessage(response.success, response.error);
         }

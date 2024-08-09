@@ -2,9 +2,7 @@
 // Авторизация пользователя
 let user = new UserForm();
 user.loginFormCallback = data => {
-    let login = data.login;
-    let password = data.password;
-    ApiConnector.login({ login, password }, response => {
+    ApiConnector.login(data, response => {
         if (response.success === true) {
             location.reload()
         } else {
@@ -15,9 +13,7 @@ user.loginFormCallback = data => {
 
 // Авторизация пользователя
 user.registerFormCallback = data => {
-    let login = data.login;
-    let password = data.password;
-    ApiConnector.register({ login, password }, response => {
+    ApiConnector.register(data, response => {
         if (response.success === true) {
             location.reload()
         } else {
